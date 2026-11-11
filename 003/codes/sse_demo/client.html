@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Agent SSE Demo</title>
+</head>
+<body>
+
+    <h2>Agent 流式输出</h2>
+
+    <button id="start">开始生成</button>
+
+    <pre id="output"></pre>
+
+    <script>
+
+        const button = document.getElementById("start");
+        const output = document.getElementById("output");
+
+        button.addEventListener("click", () => {
+
+            output.textContent = "";
+
+            const eventSource = new EventSource(
+                "http://127.0.0.1:8000/stream"
+            );
+
+            eventSource.addEventListener("token", (event) => {
+
+                const data = JSON.parse(event.data);
+
+                output.textContent += data.content;
+
+            });
+
+            eventSource.addEventListener("done", () => {
+
+                output.textContent += "\n\n生成完成";
+
+                eventSource.close();
+
+            });
+
+            eventSource.addEventListener("error", (event) => {
+
+                console.error("SSE 连接错误:", event);
+
+                eventSource.close();
+
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>
